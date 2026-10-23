@@ -34,7 +34,7 @@ import {last, shallowEqual} from './utils/collection';
  * segments, followed by the parameters for each segment.
  * The fragments are applied to the one provided in the `relativeTo` parameter.
  * @param queryParams The query parameters for the `UrlTree`. `null` if the `UrlTree` does not have
- *     any query parameters.
+ *     any query parameters. Parameters set to `null` or `undefined` are left out.
  * @param fragment The fragment for the `UrlTree`. `null` if the `UrlTree` does not have a fragment.
  * @param urlSerializer The `UrlSerializer` to use for handling query parameter normalization.
  * You should provide your application's custom `UrlSerializer` if one is configured to parse and
@@ -189,6 +189,10 @@ function tree(
 ): UrlTree {
   const qp: Params = {};
   for (const [key, value] of Object.entries(queryParams ?? {})) {
+    // Like `Router.createUrlTree`, leave out parameters that are `null` or `undefined`.
+    if (value === null || value === undefined) {
+      continue;
+    }
     // This retains old behavior where each item in the array was stringified individually This
     // helps remove special-case handling for empty and single-item arrays where the default
     // serializer removes empty arrays when serialized then parsed or converts them to non-arrays

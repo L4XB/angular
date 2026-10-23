@@ -793,6 +793,18 @@ describe('createUrlTreeFromSnapshot', () => {
     expect(fixture.nativeElement.innerHTML).toContain('child works!');
   });
 
+  it('should leave out query params that are null or undefined', () => {
+    TestBed.configureTestingModule({providers: [provideRouter([])]});
+    const router = TestBed.inject(Router);
+    const tree = createUrlTreeFromSnapshot(router.routerState.snapshot.root, [], {
+      a: null,
+      b: undefined,
+      c: 'x',
+    });
+    expect(tree.queryParams).toEqual({c: 'x'});
+    expect(router.serializeUrl(tree)).toEqual('/?c=x');
+  });
+
   it('can navigate to relative to `ActivatedRouteSnapshot` in guard', async () => {
     @Injectable({providedIn: 'root'})
     class Guard {

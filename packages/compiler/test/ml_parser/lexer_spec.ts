@@ -2201,6 +2201,33 @@ describe('HtmlLexer', () => {
       ]);
     });
 
+    it('should decode references to C1 control codes as their Windows-1252 characters', () => {
+      // Browsers decode &#146; to a right single quote, not to the U+0092 control code.
+      expect(tokenizeAndHumanizeParts('&#146;&#x96;&#128;&#x81;')).toEqual([
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '’', '&#146;'],
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '–', '&#x96;'],
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '€', '&#128;'],
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '\u0081', '&#x81;'],
+        [TokenType.TEXT, ''],
+        [TokenType.EOF],
+      ]);
+    });
+
+    it('should decode references to NUL and surrogates as U+FFFD', () => {
+      expect(tokenizeAndHumanizeParts('&#0;&#xD800;')).toEqual([
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '�', '&#0;'],
+        [TokenType.TEXT, ''],
+        [TokenType.ENCODED_ENTITY, '�', '&#xD800;'],
+        [TokenType.TEXT, ''],
+        [TokenType.EOF],
+      ]);
+    });
+
     it('should store the locations', () => {
       expect(tokenizeAndHumanizeSourceSpans('a&amp;b')).toEqual([
         [TokenType.TEXT, 'a'],
